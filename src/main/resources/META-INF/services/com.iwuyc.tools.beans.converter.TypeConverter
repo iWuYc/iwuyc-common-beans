@@ -1,0 +1,3 @@
+com.iwuyc.tools.beans.converter.DefaultConverter
+com.iwuyc.tools.beans.converter.string.String2IntegerConverter
+com.iwuyc.tools.beans.converter.object.Object2StringConverter
