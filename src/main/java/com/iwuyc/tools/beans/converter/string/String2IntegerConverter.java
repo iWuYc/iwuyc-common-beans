@@ -1,121 +1,91 @@
 package com.iwuyc.tools.beans.converter.string;
 
 import com.google.common.collect.Sets;
-import com.iwuyc.tools.beans.converter.PrimitiveTypeConstants;
+import com.iwuyc.tools.beans.converter.ConverterUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class String2IntegerConverter extends StringConverter<Number> {
-    private static final Set<Class<? extends Number>> SUPPORT_TARGET_TYPE =
+    private static final Set<Class<?>> SUPPORT_TARGET_TYPE =
             Sets.newConcurrentHashSet(Arrays.asList(Float.class, BigDecimal.class, AtomicLong.class, Long.class,
                     Double.class, AtomicInteger.class, Short.class, BigInteger.class, Byte.class, Integer.class));
 
 
+    @SuppressWarnings("unchecked")
     @Override
     public Number convert(String source, Class<? extends Number> targetClass) {
-        final Class<? extends Number> innerTargetClass = primitiveTypeTranslator(targetClass);
+        final Class<? extends Number> innerTargetClass = (Class<? extends Number>) ConverterUtils.primitiveTypeTranslator(targetClass);
         if (Float.class.isAssignableFrom(innerTargetClass)) {
-            return floatConvert(source, innerTargetClass);
+            return floatConvert(source);
         } else if (BigDecimal.class.isAssignableFrom(innerTargetClass)) {
-            return bigDecimalConverter(source, innerTargetClass);
+            return bigDecimalConverter(source);
         } else if (AtomicLong.class.isAssignableFrom(innerTargetClass)) {
-            return atomicLongConverter(source, innerTargetClass);
+            return atomicLongConverter(source);
         } else if (Long.class.isAssignableFrom(innerTargetClass)) {
-            return longConverter(source, innerTargetClass);
+            return longConverter(source);
         } else if (Double.class.isAssignableFrom(innerTargetClass)) {
-            return doubleConverter(source, innerTargetClass);
+            return doubleConverter(source);
         } else if (AtomicInteger.class.isAssignableFrom(innerTargetClass)) {
-            return atomicIntegerConverter(source, innerTargetClass);
+            return atomicIntegerConverter(source);
         } else if (Short.class.isAssignableFrom(innerTargetClass)) {
-            return shortConverter(source, innerTargetClass);
+            return shortConverter(source);
         } else if (BigInteger.class.isAssignableFrom(innerTargetClass)) {
-            return bigIntegerConverter(source, innerTargetClass);
+            return bigIntegerConverter(source);
         } else if (Byte.class.isAssignableFrom(innerTargetClass)) {
-            return byteConverter(source, innerTargetClass);
+            return byteConverter(source);
         }
-        return integerConverter(source, innerTargetClass);
+        return integerConverter(source);
     }
 
-    @SuppressWarnings("unchecked")
-//    private Class<? extends Number> primitiveTypeTranslator(Class<? extends Number> targetClass) {
-//        final Class<? extends Number> innerTargetClass;
-//        if (targetClass.isPrimitive()) {
-//            innerTargetClass = (Class<? extends Number>) PrimitiveTypeConstants.PRIMITIVE_TYPES_MAPPING_WRAPPED_TYPES.get(targetClass);
-//        } else {
-//            innerTargetClass = targetClass;
-//        }
-//        return innerTargetClass;
-//    }
-
-    private Integer integerConverter(String source, Class<? extends Number> targetClass) {
+    private Integer integerConverter(String source) {
         return Integer.parseInt(source);
     }
 
-    private Byte byteConverter(String source, Class<? extends Number> targetClass) {
+    private Byte byteConverter(String source) {
         return Byte.parseByte(source);
     }
 
-    private BigInteger bigIntegerConverter(String source, Class<? extends Number> targetClass) {
+    private BigInteger bigIntegerConverter(String source) {
         return new BigInteger(source);
     }
 
-    private Short shortConverter(String source, Class<? extends Number> targetClass) {
+    private Short shortConverter(String source) {
         return Short.parseShort(source);
     }
 
-    private AtomicInteger atomicIntegerConverter(String source, Class<? extends Number> targetClass) {
-        final Integer integer = integerConverter(source, Integer.class);
+    private AtomicInteger atomicIntegerConverter(String source) {
+        final Integer integer = integerConverter(source);
         return new AtomicInteger(integer);
     }
 
-    private Number doubleConverter(String source, Class<? extends Number> targetClass) {
+    private Number doubleConverter(String source) {
         return Double.parseDouble(source);
     }
 
-    private AtomicLong atomicLongConverter(String source, Class<? extends Number> targetClass) {
-        long initVal = longConverter(source, Long.class);
+    private AtomicLong atomicLongConverter(String source) {
+        long initVal = longConverter(source);
         return new AtomicLong(initVal);
     }
 
-    private long longConverter(String source, Class<? extends Number> longClass) {
+    private long longConverter(String source) {
         return Long.parseLong(source);
     }
 
-    private Number bigDecimalConverter(String source, Class<? extends Number> targetClass) {
+    private Number bigDecimalConverter(String source) {
         return new BigDecimal(source);
     }
 
-    private float floatConvert(String source, Class<? extends Number> targetClass) {
+    private float floatConvert(String source) {
         return Float.parseFloat(source);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public boolean support(Class<? extends Number> targetClass) {
-        final Class<? extends Number> innerTargetClass = primitiveTypeTranslator(targetClass);
-        if (SUPPORT_TARGET_TYPE.contains(innerTargetClass)) {
-            return true;
-        }
-        synchronized (SUPPORT_TARGET_TYPE) {
-            if (SUPPORT_TARGET_TYPE.contains(innerTargetClass)) {
-                return true;
-            }
-            for (Class<? extends Number> clazz : SUPPORT_TARGET_TYPE) {
-                if (clazz.isAssignableFrom(innerTargetClass)) {
-                    SUPPORT_TARGET_TYPE.add(innerTargetClass);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    protected Set<Class<? extends Number>> getSupportClass() {
+    public Set<Class<?>> getSupportClass() {
         return SUPPORT_TARGET_TYPE;
     }
 }

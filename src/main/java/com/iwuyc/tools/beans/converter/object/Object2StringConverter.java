@@ -10,4 +10,5 @@ public class Object2StringConverter extends ObjectConverter<String> {
     public boolean support(Class<? extends String> targetClass) {
         return true;
     }
+
 }

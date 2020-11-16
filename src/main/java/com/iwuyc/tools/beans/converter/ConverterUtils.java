@@ -21,7 +21,8 @@ public class ConverterUtils {
     }
 
     public static <S, T> T convert(S source, Class<T> targetClass) {
-        if (targetClass.isAssignableFrom(source.getClass())) {
+        Class<?> innerTargetClass = primitiveTypeTranslator(targetClass);
+        if (innerTargetClass.isAssignableFrom(source.getClass())) {
             return (T) source;
         }
         Optional<TypeConverter<S, T>> supportConverterOpt = findSupportConverter(source, targetClass);
@@ -78,5 +79,15 @@ public class ConverterUtils {
         }
 
         return Optional.empty();
+    }
+
+    public static Class<?> primitiveTypeTranslator(Class<?> targetClass) {
+        final Class<?> innerTargetClass;
+        if (targetClass.isPrimitive()) {
+            innerTargetClass = PrimitiveTypeConstants.PRIMITIVE_TYPES_MAPPING_WRAPPED_TYPES.get(targetClass);
+        } else {
+            innerTargetClass = targetClass;
+        }
+        return innerTargetClass;
     }
 }
