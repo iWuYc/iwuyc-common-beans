@@ -6,7 +6,7 @@
 
     <groupId>com.iwuyc.tools</groupId>
     <artifactId>iwuyc-common-beans</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>2021.4</version>
     <packaging>jar</packaging>
     <!-- info -->
     <name>iwuyc-common-beans</name>
@@ -19,6 +19,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <iwuyc-common.version>2021.4</iwuyc-common.version>
 
         <slf4j.version>1.8.0-alpha2</slf4j.version>
         <junit.version>4.12</junit.version>
@@ -74,7 +76,11 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.iwuyc.tools</groupId>
+            <artifactId>iwuyc-common</artifactId>
+            <version>${iwuyc-common.version}</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
