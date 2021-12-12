@@ -1,5 +1,6 @@
 package com.iwuyc.tools.beans.converter;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,4 +74,5 @@ public class TypeUtils {
         }
         return (Class<T>) PRIMITIVE_TYPES_MAPPING_WRAPPED_TYPES.get(targetClass);
     }
+
 }

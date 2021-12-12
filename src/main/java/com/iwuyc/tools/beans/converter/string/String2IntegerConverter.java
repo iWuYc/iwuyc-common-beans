@@ -1,12 +1,12 @@
 package com.iwuyc.tools.beans.converter.string;
 
 import com.google.common.collect.Sets;
-import com.iwuyc.tools.beans.converter.PrimitiveTypeConstants;
 import com.iwuyc.tools.beans.converter.TypeUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,17 +40,6 @@ public class String2IntegerConverter extends StringConverter<Number> {
         }
         return integerConverter(source, innerTargetClass);
     }
-
-    @SuppressWarnings("unchecked")
-//    private Class<? extends Number> primitiveTypeTranslator(Class<? extends Number> targetClass) {
-//        final Class<? extends Number> innerTargetClass;
-//        if (targetClass.isPrimitive()) {
-//            innerTargetClass = (Class<? extends Number>) PrimitiveTypeConstants.PRIMITIVE_TYPES_MAPPING_WRAPPED_TYPES.get(targetClass);
-//        } else {
-//            innerTargetClass = targetClass;
-//        }
-//        return innerTargetClass;
-//    }
 
     private Integer integerConverter(String source, Class<? extends Number> targetClass) {
         return Integer.parseInt(source);
@@ -115,7 +104,7 @@ public class String2IntegerConverter extends StringConverter<Number> {
     }
 
     @Override
-    protected Set<Class<? extends Number>> getSupportClass() {
+    public Set<Class<? extends Number>> getSupportClass() {
         return SUPPORT_TARGET_TYPE;
     }
 }

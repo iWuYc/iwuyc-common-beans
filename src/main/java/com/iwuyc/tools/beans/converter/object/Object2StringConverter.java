@@ -8,7 +8,7 @@ public class Object2StringConverter extends ObjectConverter<String> {
 
     @Override
     public boolean support(Class<? extends String> targetClass) {
-        return true;
+        return targetClass == String.class;
     }
 
 }

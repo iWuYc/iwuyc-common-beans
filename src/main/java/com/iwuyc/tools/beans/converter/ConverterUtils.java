@@ -1,16 +1,22 @@
 package com.iwuyc.tools.beans.converter;
 
+import com.iwuyc.tools.commons.util.collection.CollectionUtil;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 @SuppressWarnings({"rawtypes", "unchecked"})
+@Slf4j
 public class ConverterUtils {
     private static final Map<Class, Collection<TypeConverter>> CLASS_COLLECTION_MAP = new ConcurrentHashMap<>();
 
     static {
         final ServiceLoader<TypeConverter> typeConverters = ServiceLoader.load(TypeConverter.class);
+        // TODO Neil sort the convert.fix it later
         for (TypeConverter typeConverter : typeConverters) {
+            log.debug("loadConverterService:{}", typeConverter.getClass().getName());
             final Collection<Class> sourceTypes = typeConverter.sourceType();
             for (Class sourceType : sourceTypes) {
                 final Collection<TypeConverter> typeConvertersInstances =
@@ -70,6 +76,9 @@ public class ConverterUtils {
             }
             typeConverters = CLASS_COLLECTION_MAP.putIfAbsent(sourceType, Collections.emptyList());
         } else if (typeConverters.size() == 0) {
+            return Optional.empty();
+        }
+        if (CollectionUtil.isNotEmpty(typeConverters)) {
             return Optional.empty();
         }
         for (TypeConverter typeConverter : typeConverters) {
