@@ -1,8 +1,8 @@
 package com.iwuyc.tools.beans;
 
 import com.iwuyc.tools.beans.converter.ConverterUtils;
+import com.iwuyc.tools.beans.pojo.BeanMap;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.cglib.beans.BeanMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class BeanUtils {
      * @return 未注入成功的字段跟值，一般是，不存在这个字段，或者，在注入的时候出问题了
      */
     public static <T> Map<String, Object> setter(T instance, Map<String, ?> fieldAndVal) {
-        final BeanMap beanMap = BeanMap.create(instance);
+        final BeanMap<T> beanMap = BeanMap.create(instance);
         Map<String, Object> otherProperties = new HashMap<>(fieldAndVal.size() / 2);
         for (Map.Entry<String, ?> entryItem : fieldAndVal.entrySet()) {
             final String key = entryItem.getKey();

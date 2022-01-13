@@ -2,6 +2,7 @@ package com.iwuyc.tools.beans.converter.string;
 
 import com.google.common.collect.Sets;
 import com.iwuyc.tools.beans.converter.TypeUtils;
+import com.iwuyc.tools.commons.annotaion.Order;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,7 +11,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class String2IntegerConverter extends StringConverter<Number> {
+@Order(0)
+public class String2NumberConverter extends StringConverter<Number> {
     private static final Set<Class<? extends Number>> SUPPORT_TARGET_TYPE =
             Sets.newConcurrentHashSet(Arrays.asList(Float.class, BigDecimal.class, AtomicLong.class, Long.class,
                     Double.class, AtomicInteger.class, Short.class, BigInteger.class, Byte.class, Integer.class));
@@ -81,26 +83,6 @@ public class String2IntegerConverter extends StringConverter<Number> {
 
     private float floatConvert(String source, Class<? extends Number> targetClass) {
         return Float.parseFloat(source);
-    }
-
-    @Override
-    public boolean support(Class<? extends Number> targetClass) {
-        final Class<? extends Number> innerTargetClass = TypeUtils.primitiveTypeTranslator(targetClass);
-        if (SUPPORT_TARGET_TYPE.contains(innerTargetClass)) {
-            return true;
-        }
-        synchronized (SUPPORT_TARGET_TYPE) {
-            if (SUPPORT_TARGET_TYPE.contains(innerTargetClass)) {
-                return true;
-            }
-            for (Class<? extends Number> clazz : SUPPORT_TARGET_TYPE) {
-                if (clazz.isAssignableFrom(innerTargetClass)) {
-                    SUPPORT_TARGET_TYPE.add(innerTargetClass);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     @Override

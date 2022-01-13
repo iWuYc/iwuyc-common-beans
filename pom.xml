@@ -27,17 +27,10 @@
         <lombok.version>1.18.10</lombok.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-        <cglib.version>2.2.2</cglib.version>
         <powermock-api-mockito2.version>2.0.2</powermock-api-mockito2.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>${cglib.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

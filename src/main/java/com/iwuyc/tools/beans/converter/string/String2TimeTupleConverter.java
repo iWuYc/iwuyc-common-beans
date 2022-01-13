@@ -1,5 +1,7 @@
 package com.iwuyc.tools.beans.converter.string;
 
+import com.iwuyc.tools.beans.converter.exception.UnknownUnitException;
+import com.iwuyc.tools.commons.annotaion.Order;
 import com.iwuyc.tools.commons.basic.type.TimeTuple;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,6 +18,7 @@ import java.util.regex.Pattern;
  * @since @2017年10月15日
  */
 @Slf4j
+@Order(0)
 public class String2TimeTupleConverter extends StringConverter<TimeTuple> {
     private static final Pattern UNIT_PATTERN = Pattern.compile("[A-Za-z]+");
     private static final Map<String, TimeUnit> MAPPING = new HashMap<>();
@@ -28,6 +31,7 @@ public class String2TimeTupleConverter extends StringConverter<TimeTuple> {
         MAPPING.put("ms", TimeUnit.MILLISECONDS);
         MAPPING.put("ns", TimeUnit.NANOSECONDS);
     }
+
     /**
      * 将时间表达式转换为时间元组.示例:1h,1m,1s,1ms,1ns,分别表示:1小时,1分钟,1秒钟,1毫秒,1纳秒
      *
@@ -56,7 +60,7 @@ public class String2TimeTupleConverter extends StringConverter<TimeTuple> {
             timeUnit = MAPPING.get(unitStr);
             if (null == timeUnit) {
                 log.warn("转换的字符中存在不认识的单位：[{}]。单位列表为：[{}]", unitStr, MAPPING.keySet());
-                throw new IllegalArgumentException("Can't find unit for [" + unitStr + "]");
+                throw new UnknownUnitException("Can't find unit for [" + unitStr + "]");
             }
         } else {
             log.debug("转换的字符中不存在单位，使用默认的单位：s");
@@ -71,11 +75,6 @@ public class String2TimeTupleConverter extends StringConverter<TimeTuple> {
     @Override
     public TimeTuple convert(String source, Class<? extends TimeTuple> targetClass) {
         return converter(source, targetClass);
-    }
-
-    @Override
-    public boolean support(Class<? extends TimeTuple> targetClass) {
-        return TimeTuple.class.equals(targetClass);
     }
 
     @Override
