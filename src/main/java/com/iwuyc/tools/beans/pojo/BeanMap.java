@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
@@ -24,13 +25,15 @@ import java.util.Set;
  *
  * @author 吴宇春
  * @version 1.0.0
- * @date 2022/1/13
+ * @since 2021.4
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
+@Slf4j
 public class BeanMap<T> implements Map<String, Object> {
     private static final LoadingCache<Class, BeanFieldMap> BEAN_FIELD_MAP_BY_TYPE = CacheBuilder.newBuilder().build(new CacheLoader<Class, BeanFieldMap>() {
         @Override
-        public BeanFieldMap load(@Nonnull Class key) throws Exception {
+        @Nonnull
+        public BeanFieldMap load(@Nonnull Class key) {
             return BeanFieldMap.create(key);
         }
     });
@@ -63,13 +66,10 @@ public class BeanMap<T> implements Map<String, Object> {
 
     @Override
     public boolean containsValue(Object value) {
-        for (Entry<String, BeanFieldMap.GetterAndSetter> item : this.beanFieldMap.entrySet()) {
-            final Method getter = item.getValue().getter();
-            try {
-                final Object val = getter.invoke(this.rawObject);
-                return Objects.equals(val, value);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+        for (String item : this.beanFieldMap.keySet()) {
+            final Object val = get(item);
+            if (Objects.equals(val, value)) {
+                return true;
             }
         }
         return false;
@@ -81,16 +81,7 @@ public class BeanMap<T> implements Map<String, Object> {
             return null;
         }
         final String fieldName = String.valueOf(key);
-        final Optional<Method> getter = this.beanFieldMap.getter(fieldName);
-        if (!getter.isPresent()) {
-            return null;
-        }
-        try {
-            return getter.get().invoke(this.rawObject);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return get(fieldName, null);
     }
 
     @Override
@@ -99,12 +90,13 @@ public class BeanMap<T> implements Map<String, Object> {
         final Object oldVal = get(fieldName);
         final Optional<Method> setterOpt = this.beanFieldMap.setter(fieldName);
         if (!setterOpt.isPresent()) {
+            log.warn("the field[{}] can't write!", fieldName);
             return null;
         }
         try {
             setterOpt.get().invoke(this.rawObject, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            log.warn("write field[{}]write raise an error.", fieldName, e);
         }
         return oldVal;
     }
@@ -145,11 +137,26 @@ public class BeanMap<T> implements Map<String, Object> {
     @Override
     public Collection values() {
         Collection result = new ArrayList();
-        final Set<String> fieldNames = keySet();
-        for (String fieldName : fieldNames) {
-            result.add(get(fieldName));
+        for (Entry<String, BeanFieldMap.GetterAndSetter> item : this.beanFieldMap.entrySet()) {
+            final String fieldName = item.getKey();
+            final BeanFieldMap.GetterAndSetter getterAndSetter = item.getValue();
+            result.add(get(fieldName, getterAndSetter.getter()));
         }
         return result;
+    }
+
+    private Object get(String fieldName, Method getter) {
+
+        if (null == getter) {
+            log.warn("can't read field[{}]", fieldName);
+            return null;
+        }
+        try {
+            return getter.invoke(this.rawObject);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("read field[{}] raise an error.", fieldName, e);
+        }
+        return null;
     }
 
     @Override
@@ -176,7 +183,11 @@ public class BeanMap<T> implements Map<String, Object> {
         return result;
     }
 
-    public Class<?> getPropertyType(String key) {
-        return this.beanFieldMap.get(key).getFieldType();
+    public Optional<Class<?>> getPropertyType(String key) {
+        final BeanFieldMap.GetterAndSetter getterAndSetter = this.beanFieldMap.get(key);
+        if (null == getterAndSetter) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(getterAndSetter.getFieldType());
     }
 }

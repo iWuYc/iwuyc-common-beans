@@ -22,66 +22,66 @@ public class String2NumberConverter extends StringConverter<Number> {
     public Number convert(String source, Class<? extends Number> targetClass) {
         final Class<? extends Number> innerTargetClass = TypeUtils.primitiveTypeTranslator(targetClass);
         if (Float.class.isAssignableFrom(innerTargetClass)) {
-            return floatConvert(source, innerTargetClass);
+            return floatConvert(source);
         } else if (BigDecimal.class.isAssignableFrom(innerTargetClass)) {
-            return bigDecimalConverter(source, innerTargetClass);
+            return bigDecimalConverter(source);
         } else if (AtomicLong.class.isAssignableFrom(innerTargetClass)) {
-            return atomicLongConverter(source, innerTargetClass);
+            return atomicLongConverter(source);
         } else if (Long.class.isAssignableFrom(innerTargetClass)) {
-            return longConverter(source, innerTargetClass);
+            return longConverter(source);
         } else if (Double.class.isAssignableFrom(innerTargetClass)) {
-            return doubleConverter(source, innerTargetClass);
+            return doubleConverter(source);
         } else if (AtomicInteger.class.isAssignableFrom(innerTargetClass)) {
-            return atomicIntegerConverter(source, innerTargetClass);
+            return atomicIntegerConverter(source);
         } else if (Short.class.isAssignableFrom(innerTargetClass)) {
-            return shortConverter(source, innerTargetClass);
+            return shortConverter(source);
         } else if (BigInteger.class.isAssignableFrom(innerTargetClass)) {
-            return bigIntegerConverter(source, innerTargetClass);
+            return bigIntegerConverter(source);
         } else if (Byte.class.isAssignableFrom(innerTargetClass)) {
-            return byteConverter(source, innerTargetClass);
+            return byteConverter(source);
         }
-        return integerConverter(source, innerTargetClass);
+        return integerConverter(source);
     }
 
-    private Integer integerConverter(String source, Class<? extends Number> targetClass) {
+    private Integer integerConverter(String source) {
         return Integer.parseInt(source);
     }
 
-    private Byte byteConverter(String source, Class<? extends Number> targetClass) {
+    private Byte byteConverter(String source) {
         return Byte.parseByte(source);
     }
 
-    private BigInteger bigIntegerConverter(String source, Class<? extends Number> targetClass) {
+    private BigInteger bigIntegerConverter(String source) {
         return new BigInteger(source);
     }
 
-    private Short shortConverter(String source, Class<? extends Number> targetClass) {
+    private Short shortConverter(String source) {
         return Short.parseShort(source);
     }
 
-    private AtomicInteger atomicIntegerConverter(String source, Class<? extends Number> targetClass) {
-        final Integer integer = integerConverter(source, Integer.class);
+    private AtomicInteger atomicIntegerConverter(String source) {
+        final Integer integer = integerConverter(source);
         return new AtomicInteger(integer);
     }
 
-    private Number doubleConverter(String source, Class<? extends Number> targetClass) {
+    private Number doubleConverter(String source) {
         return Double.parseDouble(source);
     }
 
-    private AtomicLong atomicLongConverter(String source, Class<? extends Number> targetClass) {
-        long initVal = longConverter(source, Long.class);
+    private AtomicLong atomicLongConverter(String source) {
+        long initVal = longConverter(source);
         return new AtomicLong(initVal);
     }
 
-    private long longConverter(String source, Class<? extends Number> longClass) {
+    private long longConverter(String source) {
         return Long.parseLong(source);
     }
 
-    private Number bigDecimalConverter(String source, Class<? extends Number> targetClass) {
+    private Number bigDecimalConverter(String source) {
         return new BigDecimal(source);
     }
 
-    private float floatConvert(String source, Class<? extends Number> targetClass) {
+    private float floatConvert(String source) {
         return Float.parseFloat(source);
     }
 
