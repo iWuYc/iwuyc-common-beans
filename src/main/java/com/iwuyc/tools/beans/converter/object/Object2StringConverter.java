@@ -1,5 +1,8 @@
 package com.iwuyc.tools.beans.converter.object;
 
+import com.iwuyc.tools.commons.annotaion.Order;
+
+@Order(0)
 public class Object2StringConverter extends ObjectConverter<String> {
     @Override
     public String convert(Object source, Class<? extends String> targetClass) {
@@ -8,7 +11,6 @@ public class Object2StringConverter extends ObjectConverter<String> {
 
     @Override
     public boolean support(Class<? extends String> targetClass) {
-        return true;
+        return targetClass == String.class;
     }
-
 }

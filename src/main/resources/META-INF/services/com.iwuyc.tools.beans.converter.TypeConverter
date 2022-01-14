@@ -1,2 +1,3 @@
-com.iwuyc.tools.beans.converter.string.String2IntegerConverter
+com.iwuyc.tools.beans.converter.string.String2TimeTupleConverter
+com.iwuyc.tools.beans.converter.string.String2NumberConverter
 com.iwuyc.tools.beans.converter.object.Object2StringConverter
