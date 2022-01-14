@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * BeanUtils bean类的操作工具类，用于POJO的操作，涉及到部分数据类型转换的问题。
@@ -37,9 +38,14 @@ public class BeanUtils {
                 beanMap.put(key, null);
                 continue;
             }
-            final Class<?> targetClass = beanMap.getPropertyType(key);
+            final Optional<Class<?>> targetClassOpt = beanMap.getPropertyType(key);
+            if (!targetClassOpt.isPresent()) {
+                log.info("对应的属性类型未知，不处理。{}", key);
+                otherProperties.put(key, value);
+                continue;
+            }
             try {
-                final Object convertVal = ConverterUtils.convert(value, targetClass);
+                final Object convertVal = ConverterUtils.convert(value, targetClassOpt.get());
                 beanMap.put(key, convertVal);
             } catch (Exception e) {
                 log.warn("注入[{}]的时候出现异常。信息为：{}", key, e.getMessage());

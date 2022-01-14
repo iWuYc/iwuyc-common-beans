@@ -1,12 +1,12 @@
 package com.iwuyc.tools.beans.converter;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
+ * 类型相关工具类
+ *
  * @author Neil
  */
 public class TypeUtils {
@@ -68,7 +68,7 @@ public class TypeUtils {
      * @return 对应的封装类型的类实例，如果targetClass不是基础类型，则返回 targetClass。
      */
     @SuppressWarnings("unchecked")
-    public static<T> Class<T> primitiveTypeTranslator(Class<?> targetClass) {
+    public static <T> Class<T> primitiveTypeTranslator(Class<?> targetClass) {
         if (!targetClass.isPrimitive()) {
             return (Class<T>) targetClass;
         }
