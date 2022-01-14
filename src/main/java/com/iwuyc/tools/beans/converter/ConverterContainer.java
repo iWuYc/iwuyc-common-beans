@@ -13,14 +13,15 @@ import com.iwuyc.tools.commons.util.collection.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author 吴宇春
  * @version 1.0.0
- * @date 2022/1/13
+ * @since 2021.4
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 @Slf4j
@@ -40,6 +41,7 @@ public class ConverterContainer {
     private static final Map<Class, List<OrderBo<TypeConverter>>> CONVERTER_BY_SOURCE_TYPE = new ConcurrentHashMap<>();
     private static final LoadingCache<TypeTuple, Optional<TypeConverter>> TYPE_CONVERTER_LOADING_CACHE = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build(new CacheLoader<TypeTuple, Optional<TypeConverter>>() {
         @Override
+        @Nonnull
         public Optional<TypeConverter> load(@Nonnull TypeTuple typeTuple) {
             return find(typeTuple);
         }
@@ -79,7 +81,7 @@ public class ConverterContainer {
         Class sourceClass = typeTuple.getSource();
         Class targetClass = typeTuple.getTarget();
         Optional<TypeConverter> result;
-        Stack<Class<?>> targetClassStack = new Stack<>();
+        Deque<Class<?>> targetClassStack = new ArrayDeque<>();
         targetClassStack.push(sourceClass);
         do {
             Class<?> srcClazzTemp = targetClassStack.pop();

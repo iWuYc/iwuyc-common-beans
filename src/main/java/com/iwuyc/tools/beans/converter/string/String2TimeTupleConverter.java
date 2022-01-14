@@ -14,7 +14,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author @Neil
+ * 将对应的字符串传唤为 {@link TimeTuple} 的格式。
+ * <pre>
+ *  如：
+ *  1 nm: 1纳秒
+ *  1 ms: 1毫秒
+ *  1  s: 1秒
+ *  1  m: 1分钟
+ *  1  h: 1小时
+ *  1  d: 1天
+ * </pre>
+ *
+ * @author Neil
  * @since @2017年10月15日
  */
 @Slf4j
