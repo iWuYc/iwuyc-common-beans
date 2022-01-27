@@ -9,30 +9,38 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * 功能说明
+ * Bean中属性字段、getter、setter方法的缓存对象
  *
- * @author 吴宇春
- * @version 1.0.0
- * @date 2022/1/13
+ * @author Neil
+ * @version 2021.4
+ * @since 2021.4
  */
 @SuppressWarnings("rawtypes")
 @Slf4j
 public class BeanFieldMap extends HashMap<String, BeanFieldMap.GetterAndSetter> {
+    private static final Set<String> IGNORE_FIELD = Collections.unmodifiableSet(new HashSet<>(Collections.singletonList("__$lineHits$__")));
 
     public BeanFieldMap(int length) {
         super(length);
     }
 
+    @SuppressWarnings("unchecked")
     public static BeanFieldMap create(Class clazz) {
         final Field[] declaredFields = clazz.getDeclaredFields();
         BeanFieldMap result = new BeanFieldMap(declaredFields.length);
 
         for (Field field : declaredFields) {
             final String fieldName = field.getName();
+            if (IGNORE_FIELD.contains(fieldName)) {
+                continue;
+            }
             final char firstChar = Character.toUpperCase(fieldName.charAt(0));
             final String newFieldName = firstChar + fieldName.substring(1);
 
@@ -46,13 +54,13 @@ public class BeanFieldMap extends HashMap<String, BeanFieldMap.GetterAndSetter> 
                 final Method getter = clazz.getMethod(getterName);
                 getterAndSetter.getter(getter);
             } catch (NoSuchMethodException e) {
-                log.info("未找到指定名字的getter方法:{}", getterName);
+                log.warn("未找到指定名字的getter方法:{}", getterName);
             }
             try {
                 final Method setter = clazz.getMethod(setterName, fieldType);
                 getterAndSetter.setter(setter);
             } catch (NoSuchMethodException e) {
-                log.info("未找到指定名字的setter方法:{}", setterName);
+                log.warn("未找到指定名字的setter方法:{}", setterName);
             }
             result.put(fieldName, getterAndSetter);
         }
