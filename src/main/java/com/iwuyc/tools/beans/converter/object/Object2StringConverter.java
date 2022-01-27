@@ -2,6 +2,9 @@ package com.iwuyc.tools.beans.converter.object;
 
 import com.iwuyc.tools.commons.annotaion.Order;
 
+import java.util.Collections;
+import java.util.Set;
+
 @Order(0)
 public class Object2StringConverter extends ObjectConverter<String> {
     @Override
@@ -10,7 +13,7 @@ public class Object2StringConverter extends ObjectConverter<String> {
     }
 
     @Override
-    public boolean support(Class<? extends String> targetClass) {
-        return targetClass == String.class;
+    public Set<Class<? extends String>> getSupportClass() {
+        return Collections.singleton(String.class);
     }
 }

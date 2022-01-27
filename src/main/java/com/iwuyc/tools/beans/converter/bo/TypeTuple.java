@@ -4,17 +4,16 @@
 package com.iwuyc.tools.beans.converter.bo;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * 功能说明
+ * 类型元组
  *
- * @author 吴宇春
- * @version 1.0.0
- * @date 2022/1/13
+ * @author Neil
+ * @version 2021.4
+ * @since 2021.4
  */
+@SuppressWarnings("rawtypes")
 @Data
-@EqualsAndHashCode
 public class TypeTuple {
     private final Class source;
     private final Class target;
