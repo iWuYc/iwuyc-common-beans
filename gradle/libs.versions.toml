@@ -1,0 +1,30 @@
+[versions]
+lombokVer = "[1.18.28,)"
+slf4jVer = "[2.0.9,)"
+guavaVer = "[32.1.2-jre,)"
+iwuycCommonVer = "[2024.1,)"
+# test
+junitVer = "[4.13,4.13.2]"
+powermockVer = "[2.0.0,)"
+
+[libraries]
+# iwuyc tools
+iwuyc-common = { group = "com.iwuyc.tools", name = "iwuyc-common", version.ref = "iwuycCommonVer" }
+
+#
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombokVer" }
+
+# commons
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jVer" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jVer" }
+guava = { module = "com.google.guava:guava", version.ref = "guavaVer" }
+
+# test scope
+junit = { group = "junit", name = "junit", version.ref = "junitVer" }
+powermock2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powermockVer" }
+
+[bundles]
+commons-tools = ["iwuyc-common", "slf4j-api", "guava"]
+test-tools = ["junit", "slf4j-simple", "powermock2"]
+
+[plugins]
