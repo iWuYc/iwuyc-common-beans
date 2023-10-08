@@ -46,21 +46,12 @@ public class String2TimeTupleConverter extends StringConverter<TimeTuple> {
     /**
      * 将时间表达式转换为时间元组.示例:1h,1m,1s,1ms,1ns,分别表示:1小时,1分钟,1秒钟,1毫秒,1纳秒
      *
-     * @param from 源数据
-     * @return 转换后的实例
-     */
-    public static TimeTuple converter(String from) {
-        return converter(from, TimeTuple.class);
-    }
-
-    /**
-     * 将时间表达式转换为时间元组.示例:1h,1m,1s,1ms,1ns,分别表示:1小时,1分钟,1秒钟,1毫秒,1纳秒
-     *
      * @param from       源数据
      * @param targetType 目标类型
      * @return 转换后的实例
      */
-    public static TimeTuple converter(String from, Class<? extends TimeTuple> targetType) {
+    @Override
+    public TimeTuple convert(String from, Class<? extends TimeTuple> targetType) {
         log.debug("待转换的数据为：[{}];目标类型为：[{}]", from, targetType.getName());
         from = from.trim();
         Matcher unitMatcher = UNIT_PATTERN.matcher(from);
@@ -81,11 +72,6 @@ public class String2TimeTupleConverter extends StringConverter<TimeTuple> {
         String numStr = from.replaceAll("[A-Za-z]*", "").trim();
         long num = Long.parseLong(numStr);
         return TimeTuple.create(num, timeUnit);
-    }
-
-    @Override
-    public TimeTuple convert(String source, Class<? extends TimeTuple> targetClass) {
-        return converter(source, targetClass);
     }
 
     @Override

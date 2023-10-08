@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +22,21 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * 功能说明
+ * 对符合Pojo规范的类的属性进行获取、设置的操作。
+ * example:
+ * <pre>
+ *
+ *     public class Person {
+ *         private String name;
+ *         private int age;
+ *     }
+ *     public static void main(String[]args){
+ *         Person p = new Person();
+ *         BeanMap&lt;Person&gt; pMap = BeanMap.create(p);
+ *         pMap.put("name","Neil");
+ *         pMap.get("name"); // will return Neil
+ *     }
+ * </pre>
  *
  * @author 吴宇春
  * @version 1.0.0
@@ -37,6 +52,22 @@ public class BeanMap<T> implements Map<String, Object> {
             return BeanFieldMap.create(key);
         }
     });
+    private static final Map<Class<?>, Object> PRIMITIVE_INIT_VAL = new HashMap<>();
+
+    static {
+
+        PRIMITIVE_INIT_VAL.put(byte.class, 0);
+        PRIMITIVE_INIT_VAL.put(short.class, 0);
+        PRIMITIVE_INIT_VAL.put(int.class, 0);
+        PRIMITIVE_INIT_VAL.put(long.class, 0L);
+
+        PRIMITIVE_INIT_VAL.put(float.class, 0.0f);
+        PRIMITIVE_INIT_VAL.put(double.class, 0.0d);
+
+        PRIMITIVE_INIT_VAL.put(boolean.class, false);
+        PRIMITIVE_INIT_VAL.put(char.class, 0);
+    }
+
     private final T rawObject;
     private final BeanFieldMap beanFieldMap;
 
@@ -81,7 +112,12 @@ public class BeanMap<T> implements Map<String, Object> {
             return null;
         }
         final String fieldName = String.valueOf(key);
-        return get(fieldName, null);
+        final Optional<Method> getter = this.beanFieldMap.getter(fieldName);
+        if (!getter.isPresent()) {
+            log.info("Field[{}] not found getter method.", fieldName);
+            return null;
+        }
+        return get(fieldName, getter.get());
     }
 
     @Override
@@ -90,11 +126,25 @@ public class BeanMap<T> implements Map<String, Object> {
         final Object oldVal = get(fieldName);
         final Optional<Method> setterOpt = this.beanFieldMap.setter(fieldName);
         if (!setterOpt.isPresent()) {
-            log.warn("the field[{}] can't write!", fieldName);
+            log.info("the field[{}] can't write!", fieldName);
             return null;
         }
         try {
-            setterOpt.get().invoke(this.rawObject, value);
+            final Object valWillSet;
+
+            if (null == value) {
+                final Optional<Class> aClass = this.beanFieldMap.fieldType(key);
+                if (aClass.isPresent()) {
+                    final Class clazz = aClass.get();
+                    valWillSet = clazz.isPrimitive() ? PRIMITIVE_INIT_VAL.get(clazz) : value;
+                } else {
+                    valWillSet = null;
+                }
+            } else {
+                valWillSet = value;
+            }
+            final Method setterMethod = setterOpt.get();
+            setterMethod.invoke(this.rawObject, valWillSet);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.warn("write field[{}]write raise an error.", fieldName, e);
         }
@@ -102,15 +152,26 @@ public class BeanMap<T> implements Map<String, Object> {
     }
 
 
+    /**
+     * 删除某个字段的值，如果是原始类型，则会设置为该原始类型的默认值。
+     *
+     * @param key 将要移除的字段名
+     * @return 移除前的值
+     */
     @Override
     public Object remove(Object key) {
         final String fieldName = String.valueOf(Preconditions.checkNotNull(key, "key不允许为null"));
         return put(fieldName, null);
     }
 
+    /**
+     * 将所有的字段设置到指定的类中
+     *
+     * @param properties 将要设置的字段与值
+     */
     @Override
-    public void putAll(Map m) {
-        final Set<Entry> set = m.entrySet();
+    public void putAll(Map properties) {
+        final Set<Entry> set = properties.entrySet();
         for (Entry o : set) {
             final Object key = o.getKey();
             if (null == key) {
@@ -140,17 +201,17 @@ public class BeanMap<T> implements Map<String, Object> {
         for (Entry<String, BeanFieldMap.GetterAndSetter> item : this.beanFieldMap.entrySet()) {
             final String fieldName = item.getKey();
             final BeanFieldMap.GetterAndSetter getterAndSetter = item.getValue();
-            result.add(get(fieldName, getterAndSetter.getter()));
+            final Method getter = getterAndSetter.getter();
+            if (null == getter) {
+                continue;
+            }
+            final Object val = get(fieldName, getter);
+            result.add(val);
         }
         return result;
     }
 
-    private Object get(String fieldName, Method getter) {
-
-        if (null == getter) {
-            log.warn("can't read field[{}]", fieldName);
-            return null;
-        }
+    private Object get(String fieldName, @Nonnull Method getter) {
         try {
             return getter.invoke(this.rawObject);
         } catch (IllegalAccessException | InvocationTargetException e) {

@@ -10,9 +10,9 @@ import lombok.Data;
  *
  * @author Neil
  * @version 1.0.0
- * @date 2022/1/13
+ * @since 2021.4
  */
-@Data
+@Data(staticConstructor = "create")
 public class OrderBo<T> implements Comparable<OrderBo<T>> {
     private final int order;
     private final T data;

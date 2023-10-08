@@ -9,50 +9,72 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * 功能说明
+ * Bean中属性字段、getter、setter方法的缓存对象
  *
- * @author 吴宇春
- * @version 1.0.0
- * @date 2022/1/13
+ * @author Neil
+ * @version 2021.4
+ * @since 2021.4
  */
 @SuppressWarnings("rawtypes")
 @Slf4j
 public class BeanFieldMap extends HashMap<String, BeanFieldMap.GetterAndSetter> {
+    private static final Set<String> IGNORE_FIELD = Collections.unmodifiableSet(new HashSet<>(Collections.singletonList("__$lineHits$__")));
 
     public BeanFieldMap(int length) {
         super(length);
     }
 
+    @SuppressWarnings("unchecked")
     public static BeanFieldMap create(Class clazz) {
         final Field[] declaredFields = clazz.getDeclaredFields();
         BeanFieldMap result = new BeanFieldMap(declaredFields.length);
-
+        final Set<String> methodNames = Arrays.stream(clazz.getMethods()).map(Method::getName).collect(Collectors.toSet());
         for (Field field : declaredFields) {
+            final int modifiers = field.getModifiers();
+            if (Modifier.isStatic(modifiers)) {
+                continue;
+            }
+
             final String fieldName = field.getName();
+            if (IGNORE_FIELD.contains(fieldName)) {
+                continue;
+            }
             final char firstChar = Character.toUpperCase(fieldName.charAt(0));
             final String newFieldName = firstChar + fieldName.substring(1);
 
             String getterName = "get" + newFieldName;
-            String setterName = "set" + newFieldName;
-            final Class<?> fieldType = field.getType();
+            if (!methodNames.contains(getterName)) {
+                getterName = "is" + newFieldName;
+            }
 
-            GetterAndSetter getterAndSetter = new GetterAndSetter();
+            final Class<?> fieldType = field.getType();
+            GetterAndSetter getterAndSetter = new GetterAndSetter(modifiers);
             getterAndSetter.setFieldType(fieldType);
+
             try {
                 final Method getter = clazz.getMethod(getterName);
                 getterAndSetter.getter(getter);
             } catch (NoSuchMethodException e) {
-                log.info("未找到指定名字的getter方法:{}", getterName);
+                log.warn("未找到指定名字的getter方法:{}", getterName);
             }
-            try {
-                final Method setter = clazz.getMethod(setterName, fieldType);
-                getterAndSetter.setter(setter);
-            } catch (NoSuchMethodException e) {
-                log.info("未找到指定名字的setter方法:{}", setterName);
+            if (!getterAndSetter.isFinal()) {
+                String setterName = "set" + newFieldName;
+                try {
+                    final Method setter = clazz.getMethod(setterName, fieldType);
+                    getterAndSetter.setter(setter);
+                } catch (NoSuchMethodException e) {
+                    log.warn("未找到指定名字的setter方法:{}", setterName);
+                }
             }
             result.put(fieldName, getterAndSetter);
         }
@@ -87,11 +109,21 @@ public class BeanFieldMap extends HashMap<String, BeanFieldMap.GetterAndSetter> 
 
 
     public static class GetterAndSetter {
+        @Getter
+        private final int modifiers;
         private Method getter;
         private Method setter;
         @Getter
         @Setter
         private Class fieldType;
+
+        public GetterAndSetter(int modifiers) {
+            this.modifiers = modifiers;
+        }
+
+        public boolean isFinal() {
+            return Modifier.isFinal(modifiers);
+        }
 
         public Method getter() {
             return getter;
