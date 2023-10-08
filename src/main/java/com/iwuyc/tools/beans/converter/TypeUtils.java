@@ -65,6 +65,7 @@ public class TypeUtils {
      * 将基础类型的类对象转换成封装类型的类对象。如果targetClass不为基础类型，则直接返回targetClass
      *
      * @param targetClass 基础类型
+     * @param <T> 真实类型
      * @return 对应的封装类型的类实例，如果targetClass不是基础类型，则返回 targetClass。
      */
     @SuppressWarnings("unchecked")

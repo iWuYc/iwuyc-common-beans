@@ -9,3 +9,7 @@
 *.settings*
 *.idea*
 *.iml
+
+/build
+/.gradle
+/target
